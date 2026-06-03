@@ -5,11 +5,7 @@ metrics — ensuring reliable and consistent AI performance at scale.
 
 ## Demo
 
-[
-
-![Watch the demo](https://img.youtube.com/vi/ciFt8whU94A/0.jpg)
-
-](https://www.youtube.com/watch?v=ciFt8whU94A)
+[Watch the demo](https://www.youtube.com/watch?v=ciFt8whU94A)
 
 ## How It Works
 
