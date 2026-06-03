@@ -24,4 +24,4 @@ metrics — ensuring reliable and consistent AI performance at scale.
 - Correctness Metric
 - Helpfulness Metric
 - String Similarity Metric
-- n8n Evaluation (setOutputs)
+- n8n Evaluation (setoutputs)
