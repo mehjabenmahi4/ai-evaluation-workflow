@@ -1,0 +1,394 @@
+{
+  "name": "evaluation workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1184,
+        128
+      ],
+      "id": "f7c64dec-4cb1-4059-a461-30cc108fe976",
+      "name": "When chat message received",
+      "webhookId": "41754304-c688-453a-844d-508a2c452a71"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Input Query'] }}",
+        "options": {
+          "systemMessage": "=System prompt:\nYou are a professional customer support representative \nfor ZEN Footwear.\n\nHere is the complete knowledge base you must use \nto answer all customer queries:\n\n---KNOWLEDGE BASE START---\n\nPRODUCT CATALOG:\n- Zen Runner Sneaker | Sizes: 39-43 | Price: $60 | In Stock\n- Zen Street Loafer | Sizes: 40-44 | Price: $75 | In Stock\n- Zen Classic Sandal | Sizes: 38-42 | Price: $30 | In Stock\n- Zen Trek Boot | Sizes: 40-44 | Price: $110 | In Stock\n- Zen Comfort Slide | Sizes: 39-42 | Price: $25 | In Stock\n\nDISCOUNT POLICY:\n- Maximum discount: 20%\n- If customer asks more than 20%, offer 20% as best deal\n- Always show: Product Name, Base Price, Requested \n  Discount%, Best Available Discount%, Amount Saved, \n  Final Price\n\nSHIPPING POLICY:\n- Standard: 5-7 business days. Free over $75\n- Express: 2-3 business days\n- Next-Day: Order before 2:00 PM\n- Processing: 1-2 business days\n\nRETURN POLICY:\n- 30 days return window\n- Unused, original packaging only\n- Refund in 5-7 business days\n\nWARRANTY:\n- 6-month manufacturer warranty\n- Manufacturing defects only\n- Misuse not covered\n\nPAYMENT METHODS:\n- Credit Card, Debit Card, PayPal, Bank Transfer\n- All transactions secured and encrypted\n\n---KNOWLEDGE BASE END---\n\nRules:\n1. Answer ONLY from the knowledge base above\n2. Never make up information\n3. For discount over 20%, always cap at 20%\n4. If question is outside knowledge base, respond:\n\"I don't have any information regarding this matter. \nPlease contact us at supportteam@gmail.com\"\n\nInput:\nQuery:{{ $json['Input Query'] }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        32
+      ],
+      "id": "85ec277a-35d5-4837-a2e0-b8ac7447d5fb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "source": "googleSheets",
+        "documentId": {
+          "__rl": true,
+          "value": "19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To",
+          "mode": "list",
+          "cachedResultName": "ZEN footware",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To/edit#gid=0"
+        }
+      },
+      "type": "n8n-nodes-base.evaluationTrigger",
+      "typeVersion": 4.7,
+      "position": [
+        -544,
+        32
+      ],
+      "id": "ab244602-87d4-458a-bef3-5f87562fae39",
+      "name": "When fetching a dataset row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PfFOnbADgaKTlxN8",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "expectedAnswer": "={{ $('When fetching a dataset row').item.json.Expected_Output }}",
+        "actualAnswer": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        336,
+        -192
+      ],
+      "id": "db72e673-4d87-4129-a6df-e14d80588ea1",
+      "name": "Evaluation"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        32
+      ],
+      "id": "fa914e94-c643-4e8a-8b8b-5eb8057d19d3",
+      "name": "Wait",
+      "webhookId": "38c6fb3c-29c6-450d-89ba-7149aa7300c0"
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "metric": "helpfulness",
+        "userQuery": "={{ $('When fetching a dataset row').item.json['Input Query'] }}",
+        "actualAnswer": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        384,
+        160
+      ],
+      "id": "49d3ef0c-fe56-49ac-a6c3-f2abe166b967",
+      "name": "Evaluation1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        240
+      ],
+      "id": "03254a06-8d69-45f1-aa0d-3941f4018fcd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "G3wfxkFvTvC2L57z",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        0
+      ],
+      "id": "b9a7073e-3afb-4398-8499-f036bf01066e",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "G3wfxkFvTvC2L57z",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        336
+      ],
+      "id": "08a86810-0068-40db-a5cd-6ecd330784d0",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "G3wfxkFvTvC2L57z",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "metric": "stringSimilarity",
+        "expectedAnswer": "={{ $('When fetching a dataset row').item.json.Expected_Output }}",
+        "actualAnswer": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        432,
+        576
+      ],
+      "id": "aab99864-99bf-4b71-936b-9d204c4988a2",
+      "name": "Evaluation2"
+    },
+    {
+      "parameters": {
+        "source": "googleSheets",
+        "documentId": {
+          "__rl": true,
+          "value": "19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To",
+          "mode": "list",
+          "cachedResultName": "ZEN footware",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19_jSqbxn4jM-mP6MdZHajL5cnIixjQQ38q7KYo3G3To/edit#gid=0"
+        },
+        "outputs": {
+          "values": [
+            {
+              "outputName": "Actual_Output",
+              "outputValue": "={{ $('AI Agent').item.json.output }}"
+            },
+            {
+              "outputName": "Correctness",
+              "outputValue": "={{ $('When fetching a dataset row').item.json.Correctness }}"
+            },
+            {
+              "outputName": "Helpfulness",
+              "outputValue": "={{ $('When fetching a dataset row').item.json.Helpfulness }}"
+            },
+            {
+              "outputName": "String Similarity",
+              "outputValue": "={{ $('When fetching a dataset row').item.json['String Similarity'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        992,
+        160
+      ],
+      "id": "ab779807-b0ef-4400-b2d1-4f6547e7ac23",
+      "name": "Evaluation3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PfFOnbADgaKTlxN8",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When fetching a dataset row": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Evaluation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Evaluation1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Evaluation2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluation1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation": {
+      "main": [
+        [
+          {
+            "node": "Evaluation3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation1": {
+      "main": [
+        [
+          {
+            "node": "Evaluation3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation2": {
+      "main": [
+        [
+          {
+            "node": "Evaluation3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "Wzt0cjErkGwBNuP0",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "Asia/Dhaka"
+  },
+  "versionId": "3f77a1c7-3b12-41bc-843d-ca0fd7f21f84",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e6fe3cc91d2e75250e1fb7acc8e673cbc132015c1ecf69d29688f37012e82feb"
+  },
+  "id": "ov4tvKsa0XkWgBxb",
+  "tags": []
+}
